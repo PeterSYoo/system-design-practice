@@ -12,6 +12,7 @@ import { useApp } from "@/state";
 import { useSystemTheme } from "@/theme";
 
 const SIDEBAR_KEY = "sdp.sidebarCollapsed";
+const CHAT_KEY = "sdp.chatCollapsed";
 
 function HealthBanner() {
   const health = useApp((s) => s.health);
@@ -82,6 +83,13 @@ export default function App() {
       return false;
     }
   });
+  const [chatCollapsed, setChatCollapsed] = useState(() => {
+    try {
+      return localStorage.getItem(CHAT_KEY) === "1";
+    } catch {
+      return false;
+    }
+  });
 
   useEffect(() => {
     void init().finally(() => setReady(true));
@@ -91,6 +99,16 @@ export default function App() {
     setCollapsed((c) => {
       try {
         localStorage.setItem(SIDEBAR_KEY, c ? "0" : "1");
+      } catch {
+        // storage unavailable
+      }
+      return !c;
+    });
+
+  const toggleChat = () =>
+    setChatCollapsed((c) => {
+      try {
+        localStorage.setItem(CHAT_KEY, c ? "0" : "1");
       } catch {
         // storage unavailable
       }
@@ -129,7 +147,7 @@ export default function App() {
               </div>
             )}
           </main>
-          <ChatPanel />
+          <ChatPanel collapsed={chatCollapsed} onToggle={toggleChat} />
         </div>
         <NewSessionDialog open={newOpen} onOpenChange={setNewOpen} />
       </div>
