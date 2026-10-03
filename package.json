@@ -1,0 +1,30 @@
+{
+  "name": "system-design-practice",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "shared",
+    "server",
+    "client"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "concurrently -k -n server,client -c blue,green \"npm run dev -w server\" \"npm run dev -w client\"",
+    "build": "npm run build -w client && npm run build -w server",
+    "start": "npm run start -w server --",
+    "test": "npm run test --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "clean": "rimraf client/dist server/dist"
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.5",
+    "rimraf": "^6.1.3",
+    "typescript": "^7.0.2"
+  },
+  "overrides": {
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0"
+  }
+}

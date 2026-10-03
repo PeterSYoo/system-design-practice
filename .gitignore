@@ -1,0 +1,24 @@
+# dependencies and build output
+node_modules/
+dist/
+*.tsbuildinfo
+
+# environment files, never commit these
+.env
+.env.*
+!.env.example
+
+# Claude Code local settings
+.claude/settings.local.json
+
+# session data, in case SDP_DATA_DIR points inside the repo
+data/
+sessions/
+trash/
+
+# logs and OS files
+*.log
+.DS_Store
+
+# local preview launcher for the Claude desktop app
+.claude/launch.json
