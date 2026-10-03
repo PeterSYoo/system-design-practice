@@ -1,8 +1,9 @@
 import path from "node:path";
 import { query, type HookCallback, type SDKMessage } from "@anthropic-ai/claude-agent-sdk";
-import type { ErrorCode } from "@sdp/shared";
+import { MODELS_WITHOUT_EFFORT, type ErrorCode } from "@sdp/shared";
 import { claudeModel, isInside } from "./config.js";
 import { INTERVIEWER_SYSTEM_PROMPT } from "./prompts.js";
+import { getSettings } from "./settings.js";
 
 export type ClaudeEvent =
   | { type: "session"; id: string }
@@ -98,6 +99,10 @@ export async function* askClaude(opts: AskOptions): AsyncGenerator<ClaudeEvent> 
     };
   };
 
+  const settings = await getSettings();
+  const model = settings.model || claudeModel();
+  const effort = model && MODELS_WITHOUT_EFFORT.includes(model) ? undefined : settings.effort;
+
   const stream = query({
     prompt: opts.prompt,
     options: {
@@ -116,7 +121,8 @@ export async function* askClaude(opts: AskOptions): AsyncGenerator<ClaudeEvent> 
       includePartialMessages: true,
       maxTurns: opts.maxTurns ?? 4,
       env: cliEnv(),
-      model: claudeModel(),
+      model,
+      effort,
       abortController: opts.abortController,
       persistSession: opts.persist ?? true,
       stderr: (data) => {

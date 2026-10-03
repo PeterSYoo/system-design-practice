@@ -5,7 +5,10 @@ import { ALLOWED_ORIGINS, HOST, PORT, PROD, dataDir, dataDirProblem } from "./co
 import { getHealth } from "./health.js";
 import { chat } from "./routes/chat.js";
 import { sessions } from "./routes/sessions.js";
+import { SettingsSchema } from "./schemas.js";
+import { getSettings, saveSettings } from "./settings.js";
 import { serveClient } from "./static.js";
+import { errorResponse } from "./routes/errors.js";
 
 const problem = dataDirProblem();
 if (problem) {
@@ -25,6 +28,15 @@ app.use("/api/*", async (c, next) => {
 });
 
 app.get("/api/health", async (c) => c.json(await getHealth(c.req.query("refresh") === "1")));
+app.get("/api/settings", async (c) => c.json(await getSettings()));
+app.put("/api/settings", async (c) => {
+  try {
+    const { model, effort } = SettingsSchema.parse(await c.req.json());
+    return c.json(await saveSettings({ model: model || undefined, effort }));
+  } catch (err) {
+    return errorResponse(c, err);
+  }
+});
 app.route("/api/sessions", sessions);
 app.route("/api/sessions", chat);
 
