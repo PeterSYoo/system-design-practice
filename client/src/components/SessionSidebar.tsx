@@ -17,6 +17,20 @@ import { useApp } from "@/state";
 
 type Props = { collapsed: boolean; onToggle(): void; onNew(): void };
 
+const MIN_W = 200;
+const MAX_W = 480;
+const WIDTH_KEY = "sdp.sidebarWidth";
+
+function storedWidth(): number {
+  try {
+    const n = Number(localStorage.getItem(WIDTH_KEY));
+    if (n >= MIN_W && n <= MAX_W) return n;
+  } catch {
+    // storage unavailable
+  }
+  return 256;
+}
+
 function groupOf(meta: SessionMeta, now: Date): "Today" | "This week" | "Earlier" {
   const created = new Date(meta.createdAt);
   const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -41,18 +55,42 @@ export default function SessionSidebar({ collapsed, onToggle, onNew }: Props) {
   const deleteSession = useApp((s) => s.deleteSession);
   const [confirm, setConfirm] = useState<SessionListItem | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [width, setWidth] = useState(storedWidth);
+
+  const startResize = (e: React.PointerEvent) => {
+    e.preventDefault();
+    const startX = e.clientX;
+    const startW = width;
+    const move = (ev: PointerEvent) => setWidth(Math.min(MAX_W, Math.max(MIN_W, startW + ev.clientX - startX)));
+    const up = () => {
+      window.removeEventListener("pointermove", move);
+      window.removeEventListener("pointerup", up);
+      setWidth((w) => {
+        try {
+          localStorage.setItem(WIDTH_KEY, String(w));
+        } catch {
+          // storage unavailable
+        }
+        return w;
+      });
+    };
+    window.addEventListener("pointermove", move);
+    window.addEventListener("pointerup", up);
+  };
 
   if (collapsed) {
     return (
-      <aside className="flex w-12 shrink-0 flex-col items-center gap-2 border-r bg-sidebar py-3">
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button variant="ghost" size="icon-sm" onClick={onToggle} aria-label="Expand sessions">
-              <PanelLeftOpen />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent side="right">Show sessions</TooltipContent>
-        </Tooltip>
+      <aside className="flex w-12 shrink-0 flex-col items-center gap-2 border-r bg-sidebar pb-3">
+        <div className="box-content flex h-11 w-full items-center justify-center border-b bg-background">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button variant="ghost" size="icon-sm" onClick={onToggle} aria-label="Expand sessions">
+                <PanelLeftOpen />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="right">Show sessions</TooltipContent>
+          </Tooltip>
+        </div>
         <Tooltip>
           <TooltipTrigger asChild>
             <Button variant="ghost" size="icon-sm" onClick={onNew} disabled={busy} aria-label="New session">
@@ -74,19 +112,26 @@ export default function SessionSidebar({ collapsed, onToggle, onNew }: Props) {
   const order = ["Today", "This week", "Earlier", "Unreadable"].filter((g) => groups.has(g));
 
   return (
-    <aside className="flex w-64 shrink-0 flex-col border-r bg-sidebar text-sidebar-foreground">
-      <div className="flex items-center justify-between px-3 pt-3 pb-2">
+    <aside className="relative flex shrink-0 flex-col border-r bg-sidebar text-sidebar-foreground" style={{ width }}>
+      <div
+        role="separator"
+        aria-orientation="vertical"
+        aria-label="Resize sessions"
+        onPointerDown={startResize}
+        className="absolute inset-y-0 -right-1 z-10 w-2 cursor-col-resize hover:bg-ring/30"
+      />
+      <div className="box-content flex h-11 items-center justify-between border-b bg-background px-3">
         <span className="text-sm font-semibold">Sessions</span>
         <Button variant="ghost" size="icon-sm" onClick={onToggle} aria-label="Collapse sessions">
           <PanelLeftClose />
         </Button>
       </div>
-      <div className="px-3 pb-2">
+      <div className="px-3 pt-3 pb-2">
         <Button variant="outline" className="w-full justify-start" onClick={onNew} disabled={busy}>
           <Plus /> New session
         </Button>
       </div>
-      <ScrollArea className="min-h-0 flex-1">
+      <ScrollArea className="min-h-0 flex-1 [&_[data-slot=scroll-area-viewport]>div]:!block">
         <nav className="px-2 pb-3">
           {order.map((g) => (
             <section key={g} className="mt-3">
@@ -108,7 +153,7 @@ export default function SessionSidebar({ collapsed, onToggle, onNew }: Props) {
                         disabled={busy && s.id !== currentId}
                         onClick={() => s.id !== currentId && void openSession(s.id)}
                       >
-                        <div className="truncate">{s.title}</div>
+                        <div className="break-words">{s.title}</div>
                         <div className="text-xs text-muted-foreground">
                           {shortDate(s.createdAt)} · {s.difficulty}
                           {s.reviewCount > 0 && ` · ${s.reviewCount} review${s.reviewCount === 1 ? "" : "s"}`}
