@@ -3,6 +3,7 @@ import { Loader2, SendHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useApp } from "@/state";
 import CheckWorkButton from "./CheckWorkButton";
+import ModelPicker from "./ModelPicker";
 import { ErrorBubble, MessageBubble } from "./MessageBubble";
 
 const MIN_W = 320;
@@ -81,7 +82,10 @@ export default function ChatPanel() {
         onPointerDown={startResize}
         className="absolute inset-y-0 -left-1 z-10 w-2 cursor-col-resize hover:bg-ring/30"
       />
-      <div className="flex h-11 items-center border-b px-4 text-sm font-semibold">Chat</div>
+      <div className="flex h-11 items-center gap-2 border-b px-4">
+        <span className="flex-1 text-sm font-semibold">Chat</span>
+        <ModelPicker />
+      </div>
       <div ref={listRef} onScroll={onScroll} className="min-h-0 flex-1 space-y-3 overflow-y-auto px-4 py-4">
         {sessionId &&
           messages.map((m) => <MessageBubble key={m.id} sessionId={sessionId} message={m} />)}

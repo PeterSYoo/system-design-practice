@@ -1,4 +1,5 @@
 import type {
+  ClaudeSettings,
   Health,
   NewSessionBody,
   SceneFile,
@@ -27,6 +28,13 @@ async function json<T>(res: Response): Promise<T> {
 
 export const api = {
   health: (refresh = false) => fetch(`/api/health${refresh ? "?refresh=1" : ""}`).then(json<Health>),
+  getSettings: () => fetch("/api/settings").then(json<ClaudeSettings>),
+  saveSettings: (settings: ClaudeSettings) =>
+    fetch("/api/settings", {
+      method: "PUT",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(settings),
+    }).then(json<ClaudeSettings>),
   listSessions: () => fetch("/api/sessions").then(json<SessionListItem[]>),
   getSession: (id: string) => fetch(`/api/sessions/${encodeURIComponent(id)}`).then(json<SessionDetail>),
   deleteSession: (id: string) =>

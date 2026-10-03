@@ -98,3 +98,21 @@ export type StreamEvent =
 
 export const SKETCH_COLOR = "#6741d9";
 export const MAX_SKETCH_OPS = 5;
+
+/** Models offered in the picker. An empty string means Claude Code's default (or SDP_MODEL). */
+export const CLAUDE_MODELS = [
+  { id: "", label: "Default" },
+  { id: "claude-fable-5-1", label: "Fable 5.1" },
+  { id: "claude-opus-5-5", label: "Opus 5.5" },
+  { id: "claude-sonnet-5-5", label: "Sonnet 5.5" },
+  { id: "claude-haiku-4-5", label: "Haiku 4.5" },
+] as const;
+
+/** Models that take no effort setting. */
+export const MODELS_WITHOUT_EFFORT: readonly string[] = ["claude-haiku-4-5"];
+
+export const EFFORT_LEVELS = ["low", "medium", "high", "xhigh", "max"] as const;
+export type EffortLevel = (typeof EFFORT_LEVELS)[number];
+
+/** The model and effort every Claude call uses. Unset fields fall back to Claude Code's defaults. */
+export type ClaudeSettings = { model?: string; effort?: EffortLevel };

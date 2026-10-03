@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { EFFORT_LEVELS } from "@sdp/shared";
 
 export const DifficultySchema = z.enum(["easy", "medium", "hard"]);
 
@@ -74,3 +75,8 @@ export const NewSessionBodySchema = z.object({
 export const MessageBodySchema = z.object({ text: z.string().trim().min(1).max(8000) });
 
 export const ProposalDecisionSchema = z.object({ decision: z.enum(["accept", "discard"]) });
+
+export const SettingsSchema = z.object({
+  model: z.string().trim().max(100).optional(),
+  effort: z.enum(EFFORT_LEVELS).optional(),
+});
