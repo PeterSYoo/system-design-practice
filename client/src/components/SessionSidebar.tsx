@@ -167,7 +167,10 @@ export default function SessionSidebar({ collapsed, onToggle, onNew }: Props) {
                     <Button
                       variant="ghost"
                       size="icon-xs"
-                      className="absolute top-1.5 right-1 opacity-0 group-hover:opacity-100 focus-visible:opacity-100"
+                      className={cn(
+                        "absolute top-1.5 right-1 opacity-0 group-hover:opacity-100 focus-visible:opacity-100",
+                        s.id === currentId && "opacity-100",
+                      )}
                       aria-label="Delete session"
                       disabled={busy}
                       onClick={() => setConfirm(s)}
