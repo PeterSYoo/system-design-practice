@@ -1,6 +1,8 @@
-import { Gauge } from "lucide-react";
+import { useState } from "react";
+import { ChevronRight, Gauge } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { cn } from "@/lib/utils";
 
 const SECTIONS: { title: string; rows: [string, string][]; note?: string }[] = [
   {
@@ -37,35 +39,77 @@ const SECTIONS: { title: string; rows: [string, string][]; note?: string }[] = [
   },
 ];
 
-function Sections() {
+type Section = (typeof SECTIONS)[number];
+
+const CLOSED_KEY = "sdp.cheatSheetClosed";
+
+function storedClosed(): string[] {
+  try {
+    const v: unknown = JSON.parse(localStorage.getItem(CLOSED_KEY) ?? "[]");
+    return Array.isArray(v) ? v.filter((t): t is string => typeof t === "string") : [];
+  } catch {
+    return [];
+  }
+}
+
+function SectionBody({ section }: { section: Section }) {
   return (
-    <div className="space-y-3">
-      {SECTIONS.map((s) => (
-        <section key={s.title}>
-          <h4 className="mb-1 font-semibold">{s.title}</h4>
-          <dl className="grid grid-cols-[1fr_auto] gap-x-3 gap-y-0.5">
-            {s.rows.map(([k, v]) => (
-              <div key={k} className="contents">
-                <dt className="opacity-80">{k}</dt>
-                <dd className="text-right font-mono tabular-nums">{v}</dd>
-              </div>
-            ))}
-          </dl>
-          {s.note && <p className="mt-1 opacity-70">{s.note}</p>}
-        </section>
-      ))}
-    </div>
+    <>
+      <dl className="grid grid-cols-[1fr_auto] gap-x-3 gap-y-0.5">
+        {section.rows.map(([k, v]) => (
+          <div key={k} className="contents">
+            <dt className="opacity-80">{k}</dt>
+            <dd className="text-right font-mono tabular-nums">{v}</dd>
+          </div>
+        ))}
+      </dl>
+      {section.note && <p className="mt-1 opacity-70">{section.note}</p>}
+    </>
   );
 }
 
-/** Always-visible panel for the expanded sidebar. */
+/** Always-visible panel for the expanded sidebar. Each section folds; the choice is remembered. */
 export function CheatSheetPanel() {
+  const [closed, setClosed] = useState(storedClosed);
+
+  const toggle = (title: string) =>
+    setClosed((c) => {
+      const next = c.includes(title) ? c.filter((t) => t !== title) : [...c, title];
+      try {
+        localStorage.setItem(CLOSED_KEY, JSON.stringify(next));
+      } catch {
+        // storage unavailable
+      }
+      return next;
+    });
+
   return (
     <div className="border-t px-3 py-3 text-xs">
-      <h3 className="mb-2 flex items-center gap-1.5 font-medium text-muted-foreground">
+      <h3 className="mb-1.5 flex items-center gap-1.5 font-medium text-muted-foreground">
         <Gauge className="size-3.5" /> Numbers to know
       </h3>
-      <Sections />
+      <div className="space-y-1">
+        {SECTIONS.map((s) => {
+          const open = !closed.includes(s.title);
+          return (
+            <section key={s.title}>
+              <button
+                className="-mx-1 flex w-[calc(100%+0.5rem)] items-center gap-1 rounded px-1 py-0.5 text-left font-semibold hover:bg-sidebar-accent"
+                aria-expanded={open}
+                onClick={() => toggle(s.title)}
+              >
+                <ChevronRight className={cn("size-3.5 shrink-0 transition-transform", open && "rotate-90")} />
+                {s.title}
+              </button>
+              {open && (
+                <div className="mt-0.5 mb-2 pl-[1.125rem]">
+                  <SectionBody section={s} />
+                </div>
+              )}
+            </section>
+          );
+        })}
+      </div>
     </div>
   );
 }
@@ -80,7 +124,14 @@ export function CheatSheetButton() {
         </Button>
       </TooltipTrigger>
       <TooltipContent side="right" align="end" sideOffset={6} className="w-80 max-w-[calc(100vw-2rem)] px-4 py-3 text-wrap">
-        <Sections />
+        <div className="space-y-3">
+          {SECTIONS.map((s) => (
+            <section key={s.title}>
+              <h4 className="mb-1 font-semibold">{s.title}</h4>
+              <SectionBody section={s} />
+            </section>
+          ))}
+        </div>
       </TooltipContent>
     </Tooltip>
   );
