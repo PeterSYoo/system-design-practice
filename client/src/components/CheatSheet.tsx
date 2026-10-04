@@ -39,6 +39,10 @@ const SECTIONS: { title: string; rows: [string, string][]; notes?: string[] }[] 
       ["99.99% (4 nines)", "~52.6 minutes"],
       ["99.999% (5 nines)", "~5.26 minutes"],
     ],
+    notes: [
+      "Availability is the share of time a service is up. \"Nines\" counts the 9s in that percentage.",
+      "Each extra nine cuts the allowed downtime by 10×.",
+    ],
   },
 ];
 
