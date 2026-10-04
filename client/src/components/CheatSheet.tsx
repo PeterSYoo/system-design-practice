@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 
-const SECTIONS: { title: string; rows: [string, string][]; note?: string }[] = [
+const SECTIONS: { title: string; rows: [string, string][]; notes?: string[] }[] = [
   {
     title: "Traffic",
     rows: [
@@ -13,7 +13,7 @@ const SECTIONS: { title: string; rows: [string, string][]; note?: string }[] = [
       ["100 million req/day", "~1,000 req/s"],
       ["1 billion req/day", "~10,000 req/s"],
     ],
-    note: "Peak traffic is about 2–3× the daily average.",
+    notes: ["Peak traffic is about 2–3× the daily average."],
   },
   {
     title: "Latency",
@@ -27,7 +27,10 @@ const SECTIONS: { title: string; rows: [string, string][]; note?: string }[] = [
       ["Disk seek", "~10 ms"],
       ["California ↔ Netherlands round trip", "~150 ms"],
     ],
-    note: "A cross-continent round trip is about a million RAM accesses.",
+    notes: [
+      "1 ms = 1,000 µs = 1,000,000 ns.",
+      "A cross-continent round trip is about a million RAM accesses.",
+    ],
   },
   {
     title: "Availability (downtime per year)",
@@ -63,7 +66,11 @@ function SectionBody({ section }: { section: Section }) {
           </div>
         ))}
       </dl>
-      {section.note && <p className="mt-1 opacity-70">{section.note}</p>}
+      {section.notes?.map((n) => (
+        <p key={n} className="mt-1 opacity-70">
+          {n}
+        </p>
+      ))}
     </>
   );
 }
