@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { AlertTriangle, PanelLeftClose, PanelLeftOpen, Plus, Trash2 } from "lucide-react";
 import type { SessionListItem, SessionMeta } from "@sdp/shared";
-import CheatSheet from "@/components/CheatSheet";
+import { CheatSheetButton, CheatSheetPanel } from "@/components/CheatSheet";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -101,7 +101,7 @@ export default function SessionSidebar({ collapsed, onToggle, onNew }: Props) {
           <TooltipContent side="right">New session</TooltipContent>
         </Tooltip>
         <div className="mt-auto">
-          <CheatSheet />
+          <CheatSheetButton />
         </div>
       </aside>
     );
@@ -184,9 +184,7 @@ export default function SessionSidebar({ collapsed, onToggle, onNew }: Props) {
           ))}
         </nav>
       </ScrollArea>
-      <div className="border-t px-3 py-2">
-        <CheatSheet showLabel />
-      </div>
+      <CheatSheetPanel />
 
       <Dialog open={confirm !== null} onOpenChange={(o) => !o && setConfirm(null)}>
         <DialogContent>
