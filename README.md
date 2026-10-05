@@ -6,7 +6,7 @@ Everything runs on your machine: a React page, a Node server on `127.0.0.1:3001`
 
 ## Prerequisites
 
-- **Node.js 20 or later.** On Windows: `winget install OpenJS.NodeJS.LTS`.
+- **Node.js 22.12 or later.** On Windows: `winget install OpenJS.NodeJS.LTS`. On macOS: `brew install node`. Check with `node -v`.
 - **Claude Code, installed and logged in** with a Claude Pro or Max plan. Run `claude` once in a terminal and finish the login. The app uses that login through the Claude Agent SDK and does not handle login itself.
 - Each person who clones this repo uses their own Claude Code login. Nothing in the repo holds credentials.
 
