@@ -133,7 +133,7 @@ export function CheatSheetButton() {
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <Tooltip open={hover && !open} onOpenChange={setHover}>
+      <Tooltip delayDuration={0} open={hover && !open} onOpenChange={setHover}>
         <TooltipTrigger asChild>
           <PopoverTrigger asChild>
             <Button variant="ghost" size="icon-sm" aria-label="Numbers to know">
