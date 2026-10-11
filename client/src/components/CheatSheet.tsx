@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { ChevronRight, Gauge } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 
@@ -125,16 +126,25 @@ export function CheatSheetPanel() {
   );
 }
 
-/** Icon with a hover card, for the collapsed sidebar where the panel doesn't fit. */
+/** Icon that opens the sheet on click, for the collapsed sidebar where the panel doesn't fit. */
 export function CheatSheetButton() {
+  const [open, setOpen] = useState(false);
+  const [hover, setHover] = useState(false);
+
   return (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <Button variant="ghost" size="icon-sm" aria-label="Numbers to know">
-          <Gauge />
-        </Button>
-      </TooltipTrigger>
-      <TooltipContent side="right" align="end" sideOffset={6} className="w-80 max-w-[calc(100vw-2rem)] px-4 py-3 text-wrap">
+    <Popover open={open} onOpenChange={setOpen}>
+      <Tooltip open={hover && !open} onOpenChange={setHover}>
+        <TooltipTrigger asChild>
+          <PopoverTrigger asChild>
+            <Button variant="ghost" size="icon-sm" aria-label="Numbers to know">
+              <Gauge />
+            </Button>
+          </PopoverTrigger>
+        </TooltipTrigger>
+        <TooltipContent side="right">Numbers to know</TooltipContent>
+      </Tooltip>
+      <PopoverContent side="right" align="end" sideOffset={6} collisionPadding={8}
+        className="max-h-(--radix-popover-content-available-height) w-80 max-w-[calc(100vw-2rem)] overflow-y-auto px-4 py-3 text-xs">
         <div className="space-y-3">
           {SECTIONS.map((s) => (
             <section key={s.title}>
@@ -143,7 +153,7 @@ export function CheatSheetButton() {
             </section>
           ))}
         </div>
-      </TooltipContent>
-    </Tooltip>
+      </PopoverContent>
+    </Popover>
   );
 }
