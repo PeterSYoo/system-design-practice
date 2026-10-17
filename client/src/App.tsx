@@ -2,12 +2,16 @@ import { useEffect, useState } from "react";
 import { Loader2, Plus, RotateCcw, TerminalSquare } from "lucide-react";
 import Canvas from "@/components/Canvas";
 import ChatPanel from "@/components/ChatPanel";
+import Dashboard from "@/components/Dashboard";
 import NewSessionDialog from "@/components/NewSessionDialog";
 import ProposalBar from "@/components/ProposalBar";
 import QuestionBar from "@/components/QuestionBar";
+import QuizSidebar from "@/components/QuizSidebar";
+import QuizView from "@/components/QuizView";
 import SessionSidebar from "@/components/SessionSidebar";
 import { Button } from "@/components/ui/button";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { useQuiz } from "@/quiz-state";
 import { useApp } from "@/state";
 import { useSystemTheme } from "@/theme";
 
@@ -64,8 +68,24 @@ function EmptyState({ onNew }: { onNew(): void }) {
   );
 }
 
+function QuizScreen() {
+  const enter = useQuiz((s) => s.enter);
+  useEffect(() => {
+    void enter();
+  }, [enter]);
+  return (
+    <>
+      <QuizSidebar />
+      <main className="min-w-0 flex-1">
+        <QuizView />
+      </main>
+    </>
+  );
+}
+
 export default function App() {
   const theme = useSystemTheme();
+  const view = useApp((s) => s.view);
   const init = useApp((s) => s.init);
   const currentId = useApp((s) => s.currentId);
   const meta = useApp((s) => s.meta);
@@ -123,31 +143,41 @@ export default function App() {
       <div className="flex h-screen flex-col overflow-hidden bg-background text-foreground">
         <HealthBanner />
         <div className="flex min-h-0 flex-1">
-          <SessionSidebar collapsed={collapsed} onToggle={toggleSidebar} onNew={() => setNewOpen(true)} />
-          <main className="flex min-w-0 flex-1 flex-col">
-            {showCanvas || creating ? (
-              <>
-                <QuestionBar />
-                <div className="relative min-h-0 flex-1">
-                  <ProposalBar />
-                  {showCanvas && (
-                    <Canvas key={`${currentId}:${loadKey}`} sessionId={currentId} initialScene={loadedScene} theme={theme} />
-                  )}
-                </div>
-              </>
-            ) : !ready || loading ? (
-              <div className="flex h-full items-center justify-center text-muted-foreground">
-                <Loader2 className="animate-spin" />
-              </div>
-            ) : sessions.length === 0 ? (
-              <EmptyState onNew={() => setNewOpen(true)} />
-            ) : (
-              <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
-                Pick a session on the left or start a new one.
-              </div>
-            )}
-          </main>
-          <ChatPanel collapsed={chatCollapsed} onToggle={toggleChat} />
+          {view === "home" ? (
+            <main className="min-w-0 flex-1">
+              <Dashboard />
+            </main>
+          ) : view === "quiz" ? (
+            <QuizScreen />
+          ) : (
+            <>
+              <SessionSidebar collapsed={collapsed} onToggle={toggleSidebar} onNew={() => setNewOpen(true)} />
+              <main className="flex min-w-0 flex-1 flex-col">
+                {showCanvas || creating ? (
+                  <>
+                    <QuestionBar />
+                    <div className="relative min-h-0 flex-1">
+                      <ProposalBar />
+                      {showCanvas && (
+                        <Canvas key={`${currentId}:${loadKey}`} sessionId={currentId} initialScene={loadedScene} theme={theme} />
+                      )}
+                    </div>
+                  </>
+                ) : !ready || loading ? (
+                  <div className="flex h-full items-center justify-center text-muted-foreground">
+                    <Loader2 className="animate-spin" />
+                  </div>
+                ) : sessions.length === 0 ? (
+                  <EmptyState onNew={() => setNewOpen(true)} />
+                ) : (
+                  <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
+                    Pick a session on the left or start a new one.
+                  </div>
+                )}
+              </main>
+              <ChatPanel collapsed={chatCollapsed} onToggle={toggleChat} />
+            </>
+          )}
         </div>
         <NewSessionDialog open={newOpen} onOpenChange={setNewOpen} />
       </div>

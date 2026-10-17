@@ -2,6 +2,7 @@ import { useState } from "react";
 import { AlertTriangle, PanelLeftClose, PanelLeftOpen, Plus, Trash2 } from "lucide-react";
 import type { SessionListItem, SessionMeta } from "@sdp/shared";
 import { CheatSheetButton, CheatSheetPanel } from "@/components/CheatSheet";
+import { HomeButton } from "@/components/Dashboard";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -92,6 +93,7 @@ export default function SessionSidebar({ collapsed, onToggle, onNew }: Props) {
             <TooltipContent side="right">Show sessions</TooltipContent>
           </Tooltip>
         </div>
+        <HomeButton disabled={busy} />
         <Tooltip>
           <TooltipTrigger asChild>
             <Button variant="ghost" size="icon-sm" onClick={onNew} disabled={busy} aria-label="New session">
@@ -124,8 +126,9 @@ export default function SessionSidebar({ collapsed, onToggle, onNew }: Props) {
         onPointerDown={startResize}
         className="absolute inset-y-0 -right-1 z-10 w-2 cursor-col-resize hover:bg-ring/30"
       />
-      <div className="box-content flex h-11 items-center justify-between border-b bg-background px-3">
-        <span className="text-sm font-semibold">Sessions</span>
+      <div className="box-content flex h-11 items-center gap-1 border-b bg-background px-2">
+        <HomeButton disabled={busy} />
+        <span className="flex-1 text-sm font-semibold">Sessions</span>
         <Button variant="ghost" size="icon-sm" onClick={onToggle} aria-label="Collapse sessions">
           <PanelLeftClose />
         </Button>

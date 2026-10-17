@@ -82,6 +82,8 @@ export type AskOptions = {
   /** False keeps the conversation off disk (health checks). */
   persist?: boolean;
   abortController?: AbortController;
+  /** Defaults to the interviewer prompt. */
+  systemPrompt?: string;
 };
 
 /** Runs one Claude turn through the Agent SDK, yielding text deltas and the final text. */
@@ -106,7 +108,7 @@ export async function* askClaude(opts: AskOptions): AsyncGenerator<ClaudeEvent> 
   const stream = query({
     prompt: opts.prompt,
     options: {
-      systemPrompt: INTERVIEWER_SYSTEM_PROMPT,
+      systemPrompt: opts.systemPrompt ?? INTERVIEWER_SYSTEM_PROMPT,
       resume: opts.claudeSessionId,
       cwd: opts.cwd,
       tools,
@@ -199,7 +201,7 @@ function textOf(msg: Extract<SDKMessage, { type: "assistant" }>): string {
     .slice(0, 300);
 }
 
-/** Collects a whole reply. Used by the health check. */
+/** Collects a whole reply. Used by the health check and quiz questions. */
 export async function askOnce(opts: AskOptions): Promise<string> {
   let out = "";
   for await (const ev of askClaude(opts)) if (ev.type === "done") out = ev.text;

@@ -2,23 +2,29 @@ import type { Context } from "hono";
 import { streamSSE } from "hono/streaming";
 import type { StreamEvent } from "@sdp/shared";
 
-export type Emit = <E extends StreamEvent["event"]>(
+type AnyEvent = { event: string; data: unknown };
+
+/** Sends one event. The quiz routes pass their own event union. */
+export type Emit<S extends AnyEvent = StreamEvent> = <E extends S["event"]>(
   event: E,
-  data: Extract<StreamEvent, { event: E }>["data"],
+  data: Extract<S, { event: E }>["data"],
 ) => void;
 
 /**
  * Streams events from `run` as server-sent events. If the browser disconnects, `run` keeps going
  * so the reply is still saved; events are just no longer delivered.
  */
-export function sseJob(c: Context, run: (emit: Emit) => Promise<void>): Response {
+export function sseJob<S extends AnyEvent = StreamEvent>(
+  c: Context,
+  run: (emit: Emit<S>) => Promise<void>,
+): Response {
   return streamSSE(c, async (stream) => {
     let open = true;
     let chain = Promise.resolve();
     stream.onAbort(() => {
       open = false;
     });
-    const emit: Emit = (event, data) => {
+    const send = (event: string, data: unknown) => {
       if (!open) return;
       chain = chain
         .then(() => stream.writeSSE({ event, data: JSON.stringify(data) }))
@@ -27,10 +33,10 @@ export function sseJob(c: Context, run: (emit: Emit) => Promise<void>): Response
         });
     };
     try {
-      await run(emit);
+      await run(send as Emit<S>);
     } catch (err) {
       console.error(err);
-      emit("error", { message: err instanceof Error ? err.message : String(err), code: "claude_failed" });
+      send("error", { message: err instanceof Error ? err.message : String(err), code: "claude_failed" });
     }
     await chain;
   });
