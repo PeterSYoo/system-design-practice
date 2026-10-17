@@ -4,7 +4,7 @@ import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { QUIZ_CHOICES, QUIZ_LEVELS, type QuizChoice, type QuizLevel, type QuizQuestion } from "@sdp/shared";
 import { ErrorBubble } from "@/components/MessageBubble";
-import ModelPicker from "@/components/ModelPicker";
+import ModelPicker, { ModelCard } from "@/components/ModelPicker";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { currentQuestion, LEVEL_LABEL, useQuiz } from "@/quiz-state";
@@ -46,6 +46,7 @@ function LevelPicker() {
             </button>
           ))}
         </div>
+        <ModelCard description="Used to write the questions and give feedback." />
         {error && <ErrorBubble message={error.message} onRetry={error.retry} />}
       </div>
     </div>
