@@ -102,8 +102,11 @@ export default function UsagePanel({ variant }: { variant: "card" | "sidebar" })
 
   return (
     <section className="space-y-5 rounded-xl border bg-card p-5 shadow-xs">
-      <h2 className="flex items-baseline gap-2 text-base font-semibold">
-        Plan usage limits {plan && <span className="text-sm font-normal text-muted-foreground">{plan}</span>}
+      <h2 className="flex items-center gap-2 text-base font-semibold">
+        <Activity className="size-4 text-muted-foreground" />
+        <span>
+          Plan usage limits{plan && <span className="font-normal text-muted-foreground"> · {plan}</span>}
+        </span>
       </h2>
       {usage.session && <WideRow window={usage.session} />}
       {usage.weekly.length > 0 && (
