@@ -4,6 +4,7 @@ import { Hono } from "hono";
 import { ALLOWED_ORIGINS, HOST, PORT, PROD, dataDir, dataDirProblem } from "./config.js";
 import { getHealth } from "./health.js";
 import { chat } from "./routes/chat.js";
+import { quizzes } from "./routes/quizzes.js";
 import { sessions } from "./routes/sessions.js";
 import { SettingsSchema } from "./schemas.js";
 import { getSettings, saveSettings } from "./settings.js";
@@ -39,6 +40,7 @@ app.put("/api/settings", async (c) => {
 });
 app.route("/api/sessions", sessions);
 app.route("/api/sessions", chat);
+app.route("/api/quizzes", quizzes);
 
 app.all("/api/*", (c) => c.json({ message: "Not found", code: "not_found" }, 404));
 

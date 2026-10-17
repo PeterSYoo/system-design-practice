@@ -30,7 +30,11 @@ type Streaming = { kind: "chat" | "review" | "question"; text: string; status?: 
 
 export type StreamFailure = { message: string; retry: () => void };
 
+/** The dashboard, diagram practice, or the multiple choice quiz. */
+export type View = "home" | "practice" | "quiz";
+
 type AppState = {
+  view: View;
   sessions: SessionListItem[];
   currentId: string | null;
   meta: SessionMeta | null;
@@ -50,6 +54,11 @@ type AppState = {
 
 type Actions = {
   init(): Promise<void>;
+  /** Saves the canvas, then shows the dashboard. */
+  goHome(): Promise<void>;
+  /** Shows diagram practice with the open session reloaded, or the newest one. */
+  enterPractice(): Promise<void>;
+  enterQuiz(): void;
   checkHealth(refresh?: boolean): Promise<void>;
   refreshSessions(): Promise<void>;
   openSession(id: string): Promise<void>;
@@ -106,6 +115,7 @@ export const useApp = create<AppState & Actions>((set, get) => {
   }
 
   return {
+    view: "home",
     sessions: [],
     currentId: null,
     meta: null,
@@ -123,8 +133,26 @@ export const useApp = create<AppState & Actions>((set, get) => {
     async init() {
       void get().checkHealth();
       await get().refreshSessions();
-      const first = get().sessions.find((s) => !("unreadable" in s));
-      if (first) await get().openSession(first.id);
+    },
+
+    async goHome() {
+      if (get().view === "practice") {
+        if (get().streaming) return;
+        await canvas?.flushSave();
+      }
+      set({ view: "home" });
+    },
+
+    async enterPractice() {
+      set({ view: "practice" });
+      await get().refreshSessions();
+      // Reopen even the current session: the canvas unmounted, and its scene must come from disk.
+      const id = get().currentId ?? get().sessions.find((s) => !("unreadable" in s))?.id;
+      if (id) await get().openSession(id).catch(() => undefined);
+    },
+
+    enterQuiz() {
+      set({ view: "quiz" });
     },
 
     async checkHealth(refresh = false) {

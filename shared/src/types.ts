@@ -116,3 +116,65 @@ export type EffortLevel = (typeof EFFORT_LEVELS)[number];
 
 /** The model and effort every Claude call uses. Unset fields fall back to Claude Code's defaults. */
 export type ClaudeSettings = { model?: string; effort?: EffortLevel };
+
+// Multiple choice quiz.
+
+export const QUIZ_LEVELS = ["beginner", "intermediate", "advanced"] as const;
+export type QuizLevel = (typeof QUIZ_LEVELS)[number];
+
+export const QUIZ_CHOICES = ["A", "B", "C"] as const;
+export type QuizChoice = (typeof QUIZ_CHOICES)[number];
+
+/** answer: picking A, B, or C. explain: free recall after the right pick. done: waiting for "next". */
+export type QuizPhase = "answer" | "explain" | "done";
+
+export type QuizMessageKind = "pick" | "hint" | "correct" | "explanation" | "feedback" | "chat";
+
+export type QuizMessage = {
+  id: string;
+  role: "user" | "assistant";
+  kind: QuizMessageKind;
+  text: string;
+  createdAt: string;
+  /** The letter picked, on `pick` messages. */
+  choice?: QuizChoice;
+};
+
+export type QuizQuestion = {
+  id: string;
+  topic: string;
+  level: QuizLevel;
+  question: string;
+  /** Choice texts for A, B, and C. */
+  choices: [string, string, string];
+  /** The right letter. The server leaves it out of what it sends until the student picks it. */
+  answer?: QuizChoice;
+  /** Number of picks so far. A point needs a right pick on attempt 1. */
+  attempts: number;
+  phase: QuizPhase;
+  messages: QuizMessage[];
+  createdAt: string;
+};
+
+export type QuizMeta = {
+  id: string;
+  /** The level picked at setup. Questions drift up or down from it. */
+  level: QuizLevel;
+  createdAt: string;
+  updatedAt: string;
+  /** Questions answered right on the first pick. */
+  score: number;
+  /** Questions with at least one pick. */
+  answered: number;
+};
+
+export type QuizDetail = { meta: QuizMeta; questions: QuizQuestion[] };
+
+export type NewQuizBody = { level: QuizLevel };
+
+export type QuizStreamEvent =
+  | { event: "quiz"; data: { meta: QuizMeta } }
+  | { event: "delta"; data: { text: string } }
+  | { event: "status"; data: { text: string } }
+  | { event: "done"; data: { quiz: QuizDetail } }
+  | { event: "error"; data: { message: string; code: ErrorCode } };

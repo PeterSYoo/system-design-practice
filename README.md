@@ -1,6 +1,9 @@
 # System Design Practice
 
-A local web app for practicing system design interviews. Claude asks a question, you draw your design on an Excalidraw canvas, and Claude reviews it when you click **Check my work**. With a review, Claude can sketch suggested additions on the canvas in violet, and you keep or discard them.
+A local web app for practicing system design interviews. The home screen offers two modes:
+
+- **Diagram practice.** Claude asks a question, you draw your design on an Excalidraw canvas, and Claude reviews it when you click **Check my work**. With a review, Claude can sketch suggested additions on the canvas in violet, and you keep or discard them.
+- **Multiple choice quiz.** Pick a starting level (beginner, intermediate, or advanced) and Claude asks questions with three choices, A, B, and C. A wrong pick gets a hint, never the answer, and the hints get more pointed each time. After the right pick, you explain the concept in your own words, and Claude checks your explanation before you move on with **Next** (or by typing "next"). Only a right answer on the first try scores a point. Topics rotate, and the level shifts up or down from your starting point as you go.
 
 Everything runs on your machine: a React page, a Node server on `127.0.0.1:3001`, and your Claude Code CLI login. There are no accounts and no database, and the app never asks for an API key.
 
@@ -49,13 +52,15 @@ Each session is a folder of plain files under `<home>/system-design-practice-dat
 
 Deleting a session moves its folder to `<data folder>/trash/`, so you can restore it by moving it back.
 
+Each quiz is one JSON file, `<data folder>/quizzes/<date>_<level>.json`, holding every question, its answer, your picks, and the chat about it. Deleting a quiz moves the file to `<data folder>/trash/quizzes/`. The server never sends a question's answer to the browser until you pick it.
+
 ## Environment variables
 
 Set these in your shell or system environment. The app does not read a `.env` file; `.env.example` lists them.
 
 | Variable | Default | Purpose |
 | --- | --- | --- |
-| `SDP_DATA_DIR` | `<home>/system-design-practice-data` | Folder that holds `sessions/` and `trash/` |
+| `SDP_DATA_DIR` | `<home>/system-design-practice-data` | Folder that holds `sessions/`, `quizzes/`, and `trash/` |
 | `SDP_MODEL` | Claude Code's default | Model name passed to Claude, for example `claude-sonnet-5-5` |
 
 The server refuses to start if `SDP_DATA_DIR` points inside this repo at a path `.gitignore` does not cover.
@@ -72,7 +77,7 @@ The server refuses to start if `SDP_DATA_DIR` points inside this repo at a path 
 
 ```bash
 npm run dev        # Vite on :5173 with hot reload, server on :3001 with restart on change
-npm test           # Vitest: summarizer, session store, sketch handling, Claude wrapper
+npm test           # Vitest: summarizer, session and quiz stores, sketch handling, quiz parsing, Claude wrapper
 npm run typecheck
 ```
 
@@ -89,3 +94,11 @@ The repo is an npm workspace with three packages:
 3. Claude's reply streams back over server-sent events. If it ends with a `<canvas-ops>` block, the server cuts it out, validates it, and sends it to the browser as a sketch to keep or discard.
 
 Claude only has the Read tool, and a permission hook limits it to files in the current session's folder.
+
+### How a quiz works
+
+Quiz calls are one-off Claude calls with no tools. Each prompt carries the question, the right answer, and everything said about the question so far, so no Claude conversation is kept between turns.
+
+1. Claude writes a question as JSON. The server checks it and shuffles the three choices so the right one isn't always in the same spot.
+2. The server grades each pick itself. A wrong pick asks Claude for a hint, with instructions not to name the answer or rule out a choice.
+3. After the right pick, Claude judges your explanation and ends its reply with a hidden `<recall>accept</recall>` or `<recall>retry</recall>` tag, which the server strips before you see it. Only `accept` unlocks **Next**.

@@ -21,7 +21,7 @@ export class StoreError extends Error {
   }
 }
 
-const ID_RE = /^[a-z0-9_-]+$/;
+export const ID_RE = /^[a-z0-9_-]+$/;
 
 export function slugify(title: string): string {
   const slug = title
@@ -34,7 +34,7 @@ export function slugify(title: string): string {
 }
 
 /** Session ID prefix from local date and time: 2026-10-03_1432 */
-function datePrefix(d: Date): string {
+export function datePrefix(d: Date): string {
   const pad = (n: number) => String(n).padStart(2, "0");
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}_${pad(d.getHours())}${pad(d.getMinutes())}`;
 }

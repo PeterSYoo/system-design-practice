@@ -24,6 +24,7 @@ export function dataDir(): string {
 
 export const sessionsDir = () => path.join(dataDir(), "sessions");
 export const trashDir = () => path.join(dataDir(), "trash");
+export const quizzesDir = () => path.join(dataDir(), "quizzes");
 
 export const claudeModel = () => process.env.SDP_MODEL?.trim() || undefined;
 
@@ -61,7 +62,7 @@ function ignoredDirNames(gitignore: string): Set<string> {
  */
 export function dataDirProblem(gitignore = readGitignore()): string | null {
   const ignored = ignoredDirNames(gitignore);
-  for (const dir of [sessionsDir(), trashDir()]) {
+  for (const dir of [sessionsDir(), trashDir(), quizzesDir()]) {
     if (!isInside(dir, REPO_ROOT)) continue;
     const segments = path.relative(REPO_ROOT, dir).split(path.sep);
     const covered = segments.some((s) => ignored.has(process.platform === "win32" ? s.toLowerCase() : s));

@@ -1,7 +1,11 @@
 import type {
   ClaudeSettings,
   Health,
+  NewQuizBody,
   NewSessionBody,
+  QuizChoice,
+  QuizDetail,
+  QuizMeta,
   SceneFile,
   SessionDetail,
   SessionListItem,
@@ -52,6 +56,23 @@ export const api = {
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ decision }),
     }).then(json<{ ok: true }>),
+  listQuizzes: () => fetch("/api/quizzes").then(json<QuizMeta[]>),
+  getQuiz: (id: string) => fetch(`/api/quizzes/${encodeURIComponent(id)}`).then(json<QuizDetail>),
+  deleteQuiz: (id: string) =>
+    fetch(`/api/quizzes/${encodeURIComponent(id)}`, { method: "DELETE" }).then(json<{ ok: true }>),
+};
+
+const post = (url: string, body?: unknown): [string, RequestInit] => [
+  url,
+  { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body ?? {}) },
+];
+
+/** Builds the request for each quiz streaming route. */
+export const quizStreams = {
+  create: (body: NewQuizBody) => post("/api/quizzes", body),
+  next: (id: string) => post(`/api/quizzes/${encodeURIComponent(id)}/next`),
+  answer: (id: string, choice: QuizChoice) => post(`/api/quizzes/${encodeURIComponent(id)}/answer`, { choice }),
+  message: (id: string, text: string) => post(`/api/quizzes/${encodeURIComponent(id)}/messages`, { text }),
 };
 
 /** Builds the request for each streaming route. */
@@ -76,22 +97,23 @@ export const streams = {
  * POSTs and reads the server-sent event stream with fetch, since EventSource cannot send a body.
  * Resolves when the stream ends. A non-2xx response becomes a synthetic error event.
  */
-export async function readStream(
+export async function readStream<E extends { event: string; data: unknown } = StreamEvent>(
   [url, init]: [string, RequestInit],
-  onEvent: (e: StreamEvent) => void,
+  onEvent: (e: E) => void,
 ): Promise<void> {
+  const fail = (message: string, code: string) => onEvent({ event: "error", data: { message, code } } as E);
   let res: Response;
   try {
     res = await fetch(url, init);
   } catch {
-    onEvent({ event: "error", data: { message: "Could not reach the server.", code: "claude_failed" } });
+    fail("Could not reach the server.", "claude_failed");
     return;
   }
   if (!res.ok || !res.body) {
     const body = await res.json().catch(() => ({}));
     const message =
       res.status === 409 ? "Claude is still answering the previous request." : (body.message ?? `HTTP ${res.status}`);
-    onEvent({ event: "error", data: { message, code: body.code ?? "bad_request" } });
+    fail(message, body.code ?? "bad_request");
     return;
   }
 
@@ -114,7 +136,7 @@ export async function readStream(
       }
       if (!data.length) continue;
       try {
-        const parsed = { event, data: JSON.parse(data.join("\n")) } as StreamEvent;
+        const parsed = { event, data: JSON.parse(data.join("\n")) } as E;
         if (parsed.event === "done" || parsed.event === "error") sawEnd = true;
         onEvent(parsed);
       } catch {
@@ -123,6 +145,6 @@ export async function readStream(
     }
   }
   if (!sawEnd) {
-    onEvent({ event: "error", data: { message: "The connection closed before Claude finished.", code: "claude_failed" } });
+    fail("The connection closed before Claude finished.", "claude_failed");
   }
 }

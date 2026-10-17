@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { EFFORT_LEVELS } from "@sdp/shared";
+import { EFFORT_LEVELS, QUIZ_CHOICES, QUIZ_LEVELS } from "@sdp/shared";
 
 export const DifficultySchema = z.enum(["easy", "medium", "hard"]);
 
@@ -79,4 +79,54 @@ export const ProposalDecisionSchema = z.object({ decision: z.enum(["accept", "di
 export const SettingsSchema = z.object({
   model: z.string().trim().max(100).optional(),
   effort: z.enum(EFFORT_LEVELS).optional(),
+});
+
+export const QuizLevelSchema = z.enum(QUIZ_LEVELS);
+export const QuizChoiceSchema = z.enum(QUIZ_CHOICES);
+
+export const QuizMessageSchema = z.object({
+  id: z.string(),
+  role: z.enum(["user", "assistant"]),
+  kind: z.enum(["pick", "hint", "correct", "explanation", "feedback", "chat"]),
+  text: z.string(),
+  createdAt: z.string(),
+  choice: QuizChoiceSchema.optional(),
+});
+
+export const QuizQuestionSchema = z.object({
+  id: z.string(),
+  topic: z.string(),
+  level: QuizLevelSchema,
+  question: z.string(),
+  choices: z.tuple([z.string(), z.string(), z.string()]),
+  answer: QuizChoiceSchema,
+  attempts: z.number().int().nonnegative(),
+  phase: z.enum(["answer", "explain", "done"]),
+  messages: z.array(QuizMessageSchema),
+  createdAt: z.string(),
+});
+
+export const QuizFileSchema = z.object({
+  meta: z.object({
+    id: z.string(),
+    level: QuizLevelSchema,
+    createdAt: z.string(),
+    updatedAt: z.string(),
+    score: z.number().int().nonnegative(),
+    answered: z.number().int().nonnegative(),
+  }),
+  questions: z.array(QuizQuestionSchema),
+});
+
+export const NewQuizBodySchema = z.object({ level: QuizLevelSchema });
+
+export const QuizAnswerBodySchema = z.object({ choice: QuizChoiceSchema });
+
+/** What Claude writes for a new question, before the server shuffles the choices. */
+export const DraftQuestionSchema = z.object({
+  topic: z.string().trim().min(1).max(60),
+  level: QuizLevelSchema,
+  question: z.string().trim().min(1).max(2000),
+  choices: z.tuple([z.string().trim().min(1), z.string().trim().min(1), z.string().trim().min(1)]),
+  answer: QuizChoiceSchema,
 });
