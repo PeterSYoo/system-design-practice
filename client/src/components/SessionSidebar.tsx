@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import UsagePanel from "@/components/UsagePanel";
 import { cn } from "@/lib/utils";
 import { useApp } from "@/state";
 
@@ -187,6 +188,7 @@ export default function SessionSidebar({ collapsed, onToggle, onNew }: Props) {
           ))}
         </nav>
       </ScrollArea>
+      <UsagePanel variant="sidebar" />
       <CheatSheetPanel />
 
       <Dialog open={confirm !== null} onOpenChange={(o) => !o && setConfirm(null)}>

@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { ArrowRight, Home, ListChecks, PenTool } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import UsagePanel from "@/components/UsagePanel";
 import { useQuiz } from "@/quiz-state";
 import { useApp } from "@/state";
 
@@ -82,6 +83,7 @@ export default function Dashboard() {
             onOpen={enterQuiz}
           />
         </div>
+        <UsagePanel variant="card" />
       </div>
     </div>
   );

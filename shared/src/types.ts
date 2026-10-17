@@ -74,6 +74,14 @@ export type SceneFile = {
 
 export type Health = { ok: boolean; claudeReady: boolean; error?: string };
 
+/** One plan rate-limit window: percent used (0-100) and when it resets (ISO 8601). */
+export type UsageWindow = { label: string; percent: number; resetsAt: string | null };
+
+/** Claude plan usage for the dashboard. Unavailable for API key logins or when the CLI can't report it. */
+export type PlanUsage =
+  | { available: true; plan: string | null; session: UsageWindow | null; weekly: UsageWindow[] }
+  | { available: false };
+
 export type SessionDetail = {
   meta: SessionMeta;
   question: string;

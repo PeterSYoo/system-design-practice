@@ -3,6 +3,7 @@ import type {
   Health,
   NewQuizBody,
   NewSessionBody,
+  PlanUsage,
   QuizChoice,
   QuizDetail,
   QuizMeta,
@@ -32,6 +33,7 @@ async function json<T>(res: Response): Promise<T> {
 
 export const api = {
   health: (refresh = false) => fetch(`/api/health${refresh ? "?refresh=1" : ""}`).then(json<Health>),
+  usage: (fresh = false) => fetch(`/api/usage${fresh ? "?refresh=1" : ""}`).then(json<PlanUsage>),
   getSettings: () => fetch("/api/settings").then(json<ClaudeSettings>),
   saveSettings: (settings: ClaudeSettings) =>
     fetch("/api/settings", {

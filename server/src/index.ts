@@ -9,6 +9,7 @@ import { sessions } from "./routes/sessions.js";
 import { SettingsSchema } from "./schemas.js";
 import { getSettings, saveSettings } from "./settings.js";
 import { serveClient } from "./static.js";
+import { getUsage } from "./usage.js";
 import { errorResponse } from "./routes/errors.js";
 
 const problem = dataDirProblem();
@@ -29,6 +30,7 @@ app.use("/api/*", async (c, next) => {
 });
 
 app.get("/api/health", async (c) => c.json(await getHealth(c.req.query("refresh") === "1")));
+app.get("/api/usage", async (c) => c.json(await getUsage(c.req.query("refresh") === "1")));
 app.get("/api/settings", async (c) => c.json(await getSettings()));
 app.put("/api/settings", async (c) => {
   try {
