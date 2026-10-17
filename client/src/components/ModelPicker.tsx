@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { ChevronDown } from "lucide-react";
 import { CLAUDE_MODELS, EFFORT_LEVELS, MODELS_WITHOUT_EFFORT, type ClaudeSettings, type EffortLevel } from "@sdp/shared";
 import { api } from "@/api";
 import { cn } from "@/lib/utils";
@@ -12,8 +13,28 @@ const EFFORT_LABELS: Record<EffortLevel, string> = {
   max: "Max",
 };
 
-const selectClass =
-  "h-7 rounded-md border bg-background px-1.5 text-xs outline-none focus-visible:ring-2 focus-visible:ring-ring/50 disabled:opacity-50";
+/** A native select with our own chevron, since the browser's caret ignores right padding. */
+function Select({ fill, className, ...props }: React.ComponentProps<"select"> & { fill?: boolean }) {
+  return (
+    <div className={cn("relative", fill && "min-w-0 flex-1")}>
+      <select
+        className={cn(
+          "w-full appearance-none rounded-md border bg-background outline-none focus-visible:ring-2 focus-visible:ring-ring/50 disabled:opacity-50",
+          fill ? "h-9 pr-9 pl-2.5 text-sm" : "h-7 pr-6 pl-1.5 text-xs",
+          className,
+        )}
+        {...props}
+      />
+      <ChevronDown
+        aria-hidden
+        className={cn(
+          "pointer-events-none absolute top-1/2 -translate-y-1/2 text-muted-foreground",
+          fill ? "right-3 size-4" : "right-1.5 size-3.5",
+        )}
+      />
+    </div>
+  );
+}
 
 /**
  * Model and effort dropdowns. The choice is saved on the server and applies to every Claude call.
@@ -41,10 +62,10 @@ export default function ModelPicker({ fill, className }: { fill?: boolean; class
 
   return (
     <div className={cn("flex items-center gap-1.5", className)}>
-      <select
+      <Select
+        fill={fill}
         aria-label="Claude model"
         title="Claude model"
-        className={cn(selectClass, fill && "h-9 min-w-0 flex-1 px-2.5 text-sm")}
         value={model}
         disabled={busy}
         onChange={(e) => update({ ...settings, model: e.target.value || undefined })}
@@ -54,11 +75,11 @@ export default function ModelPicker({ fill, className }: { fill?: boolean; class
             {m.label}
           </option>
         ))}
-      </select>
-      <select
+      </Select>
+      <Select
+        fill={fill}
         aria-label="Effort level"
         title={noEffort ? "This model has no effort setting" : "Effort level"}
-        className={cn(selectClass, fill && "h-9 min-w-0 flex-1 px-2.5 text-sm")}
         value={noEffort ? "" : (settings.effort ?? "")}
         disabled={busy || noEffort}
         onChange={(e) => update({ ...settings, effort: (e.target.value || undefined) as EffortLevel | undefined })}
@@ -69,7 +90,7 @@ export default function ModelPicker({ fill, className }: { fill?: boolean; class
             {EFFORT_LABELS[level]}
           </option>
         ))}
-      </select>
+      </Select>
     </div>
   );
 }
