@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useQuiz } from "@/quiz-state";
 import { useApp } from "@/state";
-import { useSystemTheme } from "@/theme";
+import { useTheme } from "@/theme";
 
 const SIDEBAR_KEY = "sdp.sidebarCollapsed";
 const CHAT_KEY = "sdp.chatCollapsed";
@@ -84,7 +84,7 @@ function QuizScreen() {
 }
 
 export default function App() {
-  const theme = useSystemTheme();
+  const theme = useTheme((s) => s.theme);
   const view = useApp((s) => s.view);
   const init = useApp((s) => s.init);
   const currentId = useApp((s) => s.currentId);

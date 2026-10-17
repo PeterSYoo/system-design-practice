@@ -11,6 +11,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import ThemeToggle from "@/components/ThemeToggle";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import UsagePanel from "@/components/UsagePanel";
 import { cn } from "@/lib/utils";
@@ -38,7 +39,8 @@ export default function QuizSidebar() {
     <aside className="flex w-64 shrink-0 flex-col border-r bg-sidebar text-sidebar-foreground">
       <div className="box-content flex h-11 items-center gap-1 border-b bg-background px-2">
         <HomeButton />
-        <span className="text-sm font-semibold">Quizzes</span>
+        <span className="flex-1 text-sm font-semibold">Quizzes</span>
+        <ThemeToggle />
       </div>
       <div className="px-3 pt-3 pb-2">
         <Button variant="outline" className="w-full justify-start" onClick={close} disabled={busy}>
