@@ -12,6 +12,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import ThemeToggle from "@/components/ThemeToggle";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import UsagePanel from "@/components/UsagePanel";
@@ -103,7 +104,8 @@ export default function SessionSidebar({ collapsed, onToggle, onNew }: Props) {
           </TooltipTrigger>
           <TooltipContent side="right">New session</TooltipContent>
         </Tooltip>
-        <div className="mt-auto">
+        <div className="mt-auto flex flex-col items-center gap-2">
+          <ThemeToggle side="right" />
           <CheatSheetButton />
         </div>
       </aside>
@@ -130,6 +132,7 @@ export default function SessionSidebar({ collapsed, onToggle, onNew }: Props) {
       <div className="box-content flex h-11 items-center gap-1 border-b bg-background px-2">
         <HomeButton disabled={busy} />
         <span className="flex-1 text-sm font-semibold">Sessions</span>
+        <ThemeToggle />
         <Button variant="ghost" size="icon-sm" onClick={onToggle} aria-label="Collapse sessions">
           <PanelLeftClose />
         </Button>

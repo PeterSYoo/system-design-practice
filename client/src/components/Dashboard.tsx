@@ -3,6 +3,7 @@ import { ArrowRight, Home, ListChecks, PenTool } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { ModelCard } from "@/components/ModelPicker";
+import ThemeToggle from "@/components/ThemeToggle";
 import UsagePanel from "@/components/UsagePanel";
 import { useQuiz } from "@/quiz-state";
 import { useApp } from "@/state";
@@ -62,7 +63,10 @@ export default function Dashboard() {
     : "No quizzes yet";
 
   return (
-    <div className="flex h-full items-center justify-center overflow-y-auto px-4 py-10">
+    <div className="relative flex h-full items-center justify-center overflow-y-auto px-4 py-10">
+      <div className="absolute top-3 right-3">
+        <ThemeToggle side="left" />
+      </div>
       <div className="w-full max-w-2xl space-y-8">
         <div className="space-y-2 text-center">
           <h1 className="text-2xl font-semibold">System Design Practice</h1>
