@@ -12,6 +12,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import UsagePanel from "@/components/UsagePanel";
 import { cn } from "@/lib/utils";
 import { LEVEL_LABEL, useQuiz } from "@/quiz-state";
 
@@ -78,6 +79,7 @@ export default function QuizSidebar() {
           ))}
         </ul>
       </ScrollArea>
+      <UsagePanel variant="sidebar" />
 
       <Dialog open={confirm !== null} onOpenChange={(o) => !o && setConfirm(null)}>
         <DialogContent>

@@ -10,6 +10,7 @@ import type {
   StreamEvent,
 } from "@sdp/shared";
 import { api, readStream, streams } from "./api";
+import { useUsage } from "./usage-state";
 
 /** What the Canvas component exposes. The scene lives in Excalidraw, never in this store. */
 export type CanvasHandle = {
@@ -112,6 +113,7 @@ export const useApp = create<AppState & Actions>((set, get) => {
       }
     });
     set({ streaming: null, streamError: failed ? { message: failed, retry } : null });
+    void useUsage.getState().refresh(true);
   }
 
   return {

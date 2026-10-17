@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import type { QuizChoice, QuizDetail, QuizLevel, QuizMeta, QuizStreamEvent } from "@sdp/shared";
 import { api, quizStreams, readStream } from "./api";
+import { useUsage } from "./usage-state";
 import { useApp, type StreamFailure } from "./state";
 
 /** A request in flight. `sent` is what the student just did, shown until the reply is saved. */
@@ -88,6 +89,7 @@ export const useQuiz = create<QuizState & QuizActions>((set, get) => {
       void get().refresh();
     }
     set({ streaming: null, error: failed ? { message: failed, retry } : null });
+    void useUsage.getState().refresh(true);
   }
 
   return {
