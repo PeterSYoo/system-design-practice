@@ -7,6 +7,24 @@ A local web app for practicing system design interviews. The home screen offers 
 
 Everything runs on your machine: a React page, a Node server on `127.0.0.1:3001`, and your Claude Code CLI login. There are no accounts and no database, and the app never asks for an API key.
 
+## Screenshots
+
+**Home.** Pick a mode, choose the Claude model and effort, and check how much of your plan's usage is left.
+
+![Home screen with the two practice modes, the Claude model picker, and plan usage limits](docs/screenshots/home.png)
+
+**Diagram practice.** Claude's question sits in the chat on the right. Draw your design on the canvas, ask follow-up questions, and click **Check my work** for a review. The sidebar lists your sessions and keeps a cheat sheet of numbers to know.
+
+![Diagram practice with the session sidebar, an Excalidraw canvas, and the chat panel](docs/screenshots/diagram-practice.png)
+
+**New session.** Give an optional topic and a difficulty, and Claude writes a fresh question.
+
+![New session dialog with a topic field and Easy, Medium, and Hard difficulty](docs/screenshots/new-session.png)
+
+**Multiple choice quiz.** Pick a starting level. Questions shift up or down from there as you go.
+
+![Quiz start screen with Beginner, Intermediate, and Advanced levels](docs/screenshots/quiz-levels.png)
+
 ## Prerequisites
 
 - **Node.js 22.12 or later.** On Windows: `winget install OpenJS.NodeJS.LTS`. On macOS: `brew install node`. Check with `node -v`.
